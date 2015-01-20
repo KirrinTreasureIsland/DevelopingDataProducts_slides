@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Stock prices and returns</title>
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="stylesheet" href="libraries/frameworks/revealjs/css/reveal.min.css">
+  <link rel="stylesheet" href="libraries/frameworks/revealjs/css/theme/solarized.css" id="theme">
+  <link rel="stylesheet" href="libraries/highlighters/highlight/css/tomorrow.css" id="theme">
+  <!--[if lt IE 9]>
+  <script src="lib/js/html5shiv.js"></script>
+  <![endif]-->  <link rel="stylesheet" href = "assets/css/ribbons.css">
+
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+      <section class='' data-state='' id='slide-1'>
+  <h2>Stock prices and returns</h2>
+  <h4>Project for Coursera course <i>Developing Data Products </i></h4>
+
+<h4>Presents the application <a href="https://kirrintreasureisland.shinyapps.io/stockreturns/">https://kirrintreasureisland.shinyapps.io/stockreturns/</a></h4>
+
+</section>
+<section class='' data-state='' id='slide-2'>
+  <h2>Application</h2>
+  <ul>
+<li>Normal distribution of stock returns is an assumption in some financial models.</li>
+<li><p>The application allows the user to test this assumption for selected stock prices</p></li>
+<li><p>The user chooses</p>
+
+<ul>
+<li>the stock from a drop down menu<br></li>
+<li>time interval from a pop up calendar</li>
+</ul></li>
+<li><p>The application displays</p>
+
+<ul>
+<li>time evolution of stock price and daily returns<br></li>
+<li>histogram and normal QQ plot for the returns</li>
+</ul></li>
+<li><p>Check it here: <a href="https://kirrintreasureisland.shinyapps.io/stockreturns/">https://kirrintreasureisland.shinyapps.io/stockreturns/</a></p></li>
+</ul>
+
+</section>
+<section class='' data-state='' id='slide-3'>
+  <h2>Stock prices from quantmod</h2>
+  <ul>
+<li>Data are obtained through <code>quantmod</code> library (do not worry about the warning):</li>
+</ul>
+
+<pre><code class="r">library(quantmod)
+StockPrices &lt;- getSymbols(&quot;AMZN&quot;, 
+                          from = &quot;2014/01/01&quot;, to = &quot;2014/12/31&quot;, 
+                          auto.assign = FALSE)         
+</code></pre>
+
+<pre><code>## Warning in download.file(paste(yahoo.URL, &quot;s=&quot;, Symbols.name, &quot;&amp;a=&quot;,
+## from.m, : downloaded length 13657 != reported length 200
+</code></pre>
+
+<ul>
+<li>We use the adjusted prices from the end of the day to compute the returns:</li>
+</ul>
+
+<pre><code class="r">PriceAdjusted &lt;- StockPrices$AMZN.Adjusted
+DailyReturns &lt;- diff(log(PriceAdjusted)) # definition of returns
+DailyReturns &lt;- as.numeric(DailyReturns)[-1] # the first value is NA
+</code></pre>
+
+</section>
+<section class='' data-state='' id='slide-4'>
+  <h2>Sample plot: stock prices</h2>
+  <pre><code class="r">chartSeries(StockPrices, theme = chartTheme(&quot;white&quot;))
+</code></pre>
+
+<p><img src="assets/fig/unnamed-chunk-3-1.png" alt="plot of chunk unnamed-chunk-3"> </p>
+
+</section>
+<section class='' data-state='' id='slide-5'>
+  <h2>Sample plot: Histogram of returns</h2>
+  <pre><code class="r">hist(DailyReturns, prob=TRUE)
+x &lt;- seq(from=min(DailyReturns),to=max(DailyReturns),length.out=500)
+curve(dnorm(x, mean=mean(DailyReturns), sd=sd(DailyReturns)), 
+      add=TRUE, col=4) # added normal density curve
+</code></pre>
+
+<p><img src="assets/fig/unnamed-chunk-4-1.png" alt="plot of chunk unnamed-chunk-4"> </p>
+
+</section>
+    </div>
+  </div>
+</body>
+  <script src="libraries/frameworks/revealjs/lib/js/head.min.js"></script>
+  <script src="libraries/frameworks/revealjs/js/reveal.min.js"></script>
+  <script>
+  // Full list of configuration options available here:
+  // https://github.com/hakimel/reveal.js#configuration
+  Reveal.initialize({
+    controls: true,
+    progress: true,
+    history: true,
+    center: true,
+    theme: Reveal.getQueryHash().theme || 'solarized', 
+    transition: Reveal.getQueryHash().transition || 'cube', 
+    dependencies: [
+    // Cross-browser shim that fully implements classList -
+    // https://github.com/eligrey/classList.js/
+      { src: 'libraries/frameworks/revealjs/lib/js/classList.js', condition: function() { return !document.body.classList;}},
+      // Zoom in and out with Alt+click
+      { src: 'libraries/frameworks/revealjs/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+      // Speaker notes
+      { src: 'libraries/frameworks/revealjs/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+      // Remote control your reveal.js presentation using a touch device
+      //{ src: 'libraries/frameworks/revealjs/plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+      ]
+  });
+  </script>   
+
+</html>
